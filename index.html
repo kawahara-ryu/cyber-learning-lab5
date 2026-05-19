@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Cyber Python Demo: Functions & Recursion</title>
+<link rel="stylesheet" href="style.css?v=1">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+</head>
+<body>
+
+<div id="header">
+  <button class="nav-btn" onclick="prevStep()">◀ Prev</button>
+  <div class="step-indicator" id="step-display">5-1. 関数の定義と戻り値</div>
+  <button class="nav-btn" onclick="nextStep()">Next ▶</button>
+</div>
+
+<div id="memory-hud">[MEMORY]<br><span id="mem-content">Wait...</span></div>
+
+<div id="code-monitor">
+  <div class="monitor-header">function_demo.py</div>
+  <pre id="code-content"></pre>
+</div>
+
+<div id="trace-log">
+  <div class="log-header">TRACE LOG</div>
+  <div id="log-content"></div>
+</div>
+
+<div id="content">
+  <!-- 5-1 -->
+  <div class="step-panel" id="step-1">
+    <h2>5-1. 関数の定義と戻り値</h2>
+    <div class="code-block">def fruits_price(apple, banana):<br>  ...<br>  return total</div>
+    <div class="control-group">
+      <button class="run-btn step-btn" onclick="triggerStep(1, false)">⏭ STEP</button>
+      <button class="run-btn auto-btn" onclick="triggerStep(1, true)">▶ AUTO</button>
+    </div>
+  </div>
+  
+  <!-- 5-2 -->
+  <div class="step-panel" id="step-2">
+    <h2>5-2. 戻り値のない関数</h2>
+    <div class="code-block">def fruits_price(apple, banana):<br>  ...<br>  print('合計...', total)</div>
+    <div class="control-group">
+      <button class="run-btn step-btn" onclick="triggerStep(2, false)">⏭ STEP</button>
+      <button class="run-btn auto-btn" onclick="triggerStep(2, true)">▶ AUTO</button>
+    </div>
+  </div>
+  
+  <!-- 5-3 -->
+  <div class="step-panel" id="step-3">
+    <h2>5-3. 三角形の面積を求める関数</h2>
+    <div class="code-block">def triangle(a, b):<br>  return a * b / 2</div>
+    <div class="control-group">
+      <button class="run-btn step-btn" onclick="triggerStep(3, false)">⏭ STEP</button>
+      <button class="run-btn auto-btn" onclick="triggerStep(3, true)">▶ AUTO</button>
+    </div>
+  </div>
+  
+  <!-- 5-4 -->
+  <div class="step-panel" id="step-4">
+    <h2>5-4. 再帰関数① 階乗(n!)</h2>
+    <div class="code-block">def kaijou(n):<br>  if n == 0: return 1<br>  else: return n * kaijou(n-1)</div>
+    <div class="control-group">
+      <button class="run-btn step-btn" onclick="triggerStep(4, false)">⏭ STEP</button>
+      <button class="run-btn auto-btn" onclick="triggerStep(4, true)">▶ AUTO</button>
+    </div>
+  </div>
+  
+  <!-- 5-5 -->
+  <div class="step-panel" id="step-5">
+    <h2>5-5. 再帰関数② 組合せ(nCr)</h2>
+    <div class="code-block">def kumiawase(n, r):<br>  if r==0 or n==r: return 1<br>  ...<br>  return kumiawase(n-1,r) + kumiawase(n-1,r-1)</div>
+    <div class="control-group">
+      <button class="run-btn step-btn" onclick="triggerStep(5, false)">⏭ STEP</button>
+      <button class="run-btn auto-btn" onclick="triggerStep(5, true)">▶ AUTO</button>
+    </div>
+  </div>
+  
+  <!-- 5-6 -->
+  <div class="step-panel" id="step-6">
+    <h2>5-6. 再帰関数③ ユークリッドの互除法</h2>
+    <div class="code-block">def god(a, b):<br>  if b == 0: return a<br>  else: return god(b, a % b)</div>
+    <div class="control-group">
+      <button class="run-btn step-btn" onclick="triggerStep(6, false)">⏭ STEP</button>
+      <button class="run-btn auto-btn" onclick="triggerStep(6, true)">▶ AUTO</button>
+    </div>
+  </div>
+</div>
+
+<div id="factory-floor">
+  <!-- JavaScript will inject dynamic elements here -->
+</div>
+<script src="main.js?v=1"></script>
+</body>
+</html>
