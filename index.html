@@ -3,95 +3,142 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Cyber Python Demo: Functions & Recursion</title>
-<link rel="stylesheet" href="style.css?v=1">
+<title>Cyber Python Demo: Function & Recursion</title>
+<link rel="stylesheet" href="style.css?v=21">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
 <body>
 
+<!-- Header -->
 <div id="header">
-  <button class="nav-btn" onclick="prevStep()">◀ Prev</button>
-  <div class="step-indicator" id="step-display">5-1. 関数の定義と戻り値</div>
-  <button class="nav-btn" onclick="nextStep()">Next ▶</button>
-</div>
+  <button class="nav-btn" onclick="prevStep()" title="前のステップへ (←キー)">◀ Prev</button>
+  <div class="step-indicator" id="step-display">5-1. 関数の基本</div>
+  <button class="nav-btn" onclick="nextStep()" title="次のステップへ (→キー)">Next ▶</button>
+  <div class="header-tools">
+    <div class="speed-control">
+      <span title="🐢 遅い">🐢</span>
+      <input type="range" id="speed-slider" min="0.5" max="3" step="0.5" value="1" oninput="changeSpeed(this.value)">
+      <span title="🐇 速い">🐇</span>
+    </div>
 
-<div id="memory-hud">[MEMORY]<br><span id="mem-content">Wait...</span></div>
-
-<div id="code-monitor">
-  <div class="monitor-header">function_demo.py</div>
-  <pre id="code-content"></pre>
-</div>
-
-<div id="trace-log">
-  <div class="log-header">TRACE LOG</div>
-  <div id="log-content"></div>
-</div>
-
-<div id="content">
-  <!-- 5-1 -->
-  <div class="step-panel" id="step-1">
-    <h2>5-1. 関数の定義と戻り値</h2>
-    <div class="code-block">def fruits_price(apple, banana):<br>  ...<br>  return total</div>
-    <div class="control-group">
-      <button class="run-btn step-btn" onclick="triggerStep(1, false)">⏭ STEP</button>
-      <button class="run-btn auto-btn" onclick="triggerStep(1, true)">▶ AUTO</button>
-    </div>
-  </div>
-  
-  <!-- 5-2 -->
-  <div class="step-panel" id="step-2">
-    <h2>5-2. 戻り値のない関数</h2>
-    <div class="code-block">def fruits_price(apple, banana):<br>  ...<br>  print('合計...', total)</div>
-    <div class="control-group">
-      <button class="run-btn step-btn" onclick="triggerStep(2, false)">⏭ STEP</button>
-      <button class="run-btn auto-btn" onclick="triggerStep(2, true)">▶ AUTO</button>
-    </div>
-  </div>
-  
-  <!-- 5-3 -->
-  <div class="step-panel" id="step-3">
-    <h2>5-3. 三角形の面積を求める関数</h2>
-    <div class="code-block">def triangle(a, b):<br>  return a * b / 2</div>
-    <div class="control-group">
-      <button class="run-btn step-btn" onclick="triggerStep(3, false)">⏭ STEP</button>
-      <button class="run-btn auto-btn" onclick="triggerStep(3, true)">▶ AUTO</button>
-    </div>
-  </div>
-  
-  <!-- 5-4 -->
-  <div class="step-panel" id="step-4">
-    <h2>5-4. 再帰関数① 階乗(n!)</h2>
-    <div class="code-block">def kaijou(n):<br>  if n == 0: return 1<br>  else: return n * kaijou(n-1)</div>
-    <div class="control-group">
-      <button class="run-btn step-btn" onclick="triggerStep(4, false)">⏭ STEP</button>
-      <button class="run-btn auto-btn" onclick="triggerStep(4, true)">▶ AUTO</button>
-    </div>
-  </div>
-  
-  <!-- 5-5 -->
-  <div class="step-panel" id="step-5">
-    <h2>5-5. 再帰関数② 組合せ(nCr)</h2>
-    <div class="code-block">def kumiawase(n, r):<br>  if r==0 or n==r: return 1<br>  ...<br>  return kumiawase(n-1,r) + kumiawase(n-1,r-1)</div>
-    <div class="control-group">
-      <button class="run-btn step-btn" onclick="triggerStep(5, false)">⏭ STEP</button>
-      <button class="run-btn auto-btn" onclick="triggerStep(5, true)">▶ AUTO</button>
-    </div>
-  </div>
-  
-  <!-- 5-6 -->
-  <div class="step-panel" id="step-6">
-    <h2>5-6. 再帰関数③ ユークリッドの互除法</h2>
-    <div class="code-block">def god(a, b):<br>  if b == 0: return a<br>  else: return god(b, a % b)</div>
-    <div class="control-group">
-      <button class="run-btn step-btn" onclick="triggerStep(6, false)">⏭ STEP</button>
-      <button class="run-btn auto-btn" onclick="triggerStep(6, true)">▶ AUTO</button>
-    </div>
+    <button class="tool-btn" id="zoom-btn" onclick="toggleZoom()" title="プロジェクター用文字拡大">🔍 ZOOM</button>
   </div>
 </div>
 
-<div id="factory-floor">
-  <!-- JavaScript will inject dynamic elements here -->
+<!-- Main 3-Column Layout -->
+<div id="app-container">
+
+  <!-- Left Column: Code Monitor & Step Controllers -->
+  <div id="left-panel">
+    <div class="panel-box" id="code-box">
+      <div class="panel-header">
+        <span class="file-name">📄 func_recursion.py (Google Colab Cell)</span>
+        <span class="step-badge" id="step-badge">Step 1/12</span>
+      </div>
+      <div id="code-scroll-area">
+        <div id="code-content"></div>
+      </div>
+    </div>
+
+    <!-- Parameter Changer (実験用入力フォーム) -->
+    <div id="input-param-bar" style="display:none;">
+      <span class="param-label">🎮 入力値の変更:</span>
+      <div id="param-controls"></div>
+      <button class="param-apply-btn" onclick="applyParamsAndRun()">再実行 🔄</button>
+    </div>
+
+    <!-- Controls -->
+    <div class="panel-box" id="control-box">
+      <div class="control-btn-group">
+        <button class="ctrl-btn" id="btn-back" onclick="stepBack()" title="1行戻る">⏮ BACK</button>
+        <button class="ctrl-btn primary" id="btn-step" onclick="stepForward()" title="1行進む (Spaceキー)">⏭ STEP</button>
+        <button class="ctrl-btn" id="btn-auto" onclick="toggleAuto()" title="自動実行">▶ AUTO</button>
+        <button class="ctrl-btn" id="btn-reset" onclick="resetCurrentStep()" title="リセット">🔄 RESET</button>
+      </div>
+      <!-- Teacher's / CPU Explanation Bubble -->
+      <div id="explanation-card">
+        <div class="exp-title">💡 内部処理の解説</div>
+        <div class="exp-body" id="exp-text">準備完了。「⏭ STEP」または Spaceキーで1行ずつ実行してみよう！</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Center Column: Computer Internal (Condition Gate & RAM) + Physics World -->
+  <div id="center-panel">
+    <div class="center-header">
+      <span>⚙️ コンピュータ内部処理 (CPU & Memory)</span>
+      <span class="status-indicator" id="cpu-status">READY</span>
+    </div>
+
+    <!-- Memory Rack (Variable Boxes) -->
+    <div id="memory-rack-container">
+      <div class="rack-label">📦 変数 (RAM)</div>
+      <div id="mem-content" style="color:var(--neon-pink); padding: 10px; font-weight:bold;">Wait...</div>
+    </div>
+
+    <!-- Factory Floor for Call Stacks / Recursion Tree -->
+    <div id="factory-floor" style="position:relative; width:100%; height:100%; min-height:400px;">
+      <div id="gcd-visualizer"></div>
+      <div id="tree-visualizer" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; pointer-events: none;"></div>
+    </div>
+  </div>
+
+  <!-- Right Column: Colab Terminal & Trace Table -->
+  <div id="right-panel">
+    <!-- Terminal Output -->
+    <div class="panel-box" id="terminal-box">
+      <div class="panel-header terminal-header">
+        <span>💻 実行結果 (Colab 出力)</span>
+        <button class="clear-btn" onclick="clearTerminal()">消去</button>
+      </div>
+      <div id="terminal-screen">
+        <div class="term-line prompt">Python 3.10.12 (Google Colaboratory)</div>
+        <div id="term-output-list"></div>
+      </div>
+    </div>
+
+    <!-- Trace Table -->
+    <div class="panel-box" id="trace-box">
+      <div class="panel-header trace-header">
+        <span>📊 条件分岐トレース表</span>
+      </div>
+      <div class="trace-table-container">
+        <table class="cyber-trace-table" id="trace-table">
+          <thead id="trace-thead">
+            <tr>
+              <th style="width: 26px;">行</th>
+              <th style="width: 120px;">実行コード</th>
+              <th id="th-var1">変数</th>
+              <th id="th-cond">条件</th>
+            </tr>
+          </thead>
+          <tbody id="trace-tbody">
+            <!-- Rows appended dynamically -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
 </div>
-<script src="main.js?v=1"></script>
+
+
+<!-- Hacker Cat Tooltip -->
+<div id="hacker-tooltip" class="hacker-tooltip hidden">
+  <div class="hacker-speech-bubble">
+    <div class="hacker-cat-icon">🐱</div>
+    <div id="hacker-speech-text" class="hacker-speech-text"></div>
+  </div>
+</div>
+
+<script src="main.js?v=21"></script>
+
+
+
+
+
+
 </body>
 </html>
