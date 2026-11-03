@@ -1,4 +1,4 @@
-﻿const codes = [
+const codes = [
 `def fruits_price(apple, banana):
   total_apple = apple * 100
   total_banana = banana * 80
@@ -16,8 +16,23 @@ print('りんご ', apple_count, '個とバナナ', banana_count, '本で、合�
   else:
     return n * kaijou(n-1)
 
-ans = kaijou(3)
-print('3! =', ans)`,
+ans = kaijou(5)
+print('5! =', ans)`,
+
+`# 組合せ nCr を求めるプログラム。「nCr = n-1Cr + n-1Cr-1」を利用する。
+def kumiawase(n, r):
+  if r == 0 or n == r:
+    return 1
+  else:
+    if r == 0:
+      return 0
+    else:
+      return kumiawase(n-1, r) + kumiawase(n-1, r-1)
+
+n = input('整数を入力してください：')
+
+for i in range(0, int(n) + 1):
+  print(n, 'C', i, '=', kumiawase(int(n), i))`,
 
 `def gcd(a, b):
   if b == 0:
@@ -52,6 +67,7 @@ const traceTableContainer = document.querySelector('.trace-table-container');
 const stepTraceHeaders = [
   ["ステップ", "引数 / 変数", "計算処理", "値 / 出力"],
   ["スタック / 深さ", "引数 n", "判定 / 処理", "戻り値 (return)"],
+  ["ループ / 呼出", "引数 (n, r)", "条件・再帰式", "計算結果 / 出力"],
   ["呼び出し", "引数 (a, b)", "計算 (r = a % b)", "判定 / 戻り値"],
   ["ノード (Call)", "引数 n", "条件 (n <= 1)", "戻り値"]
 ];
@@ -168,17 +184,21 @@ function highlightSyntax(code) {
 }
 
 function initUI() {
-  
-  
-  const titles = ["5-1. 関数の基本", "5-4. 自分自身を実行する再帰関数①（階乗）", "5-6. 再帰関数②（ユークリッド互除法）", "5-x. 樹状再帰（フィボナッチ・ツリー）"];
+  const titles = [
+    "5-1. 関数の基本",
+    "5-4. 自分自身を実行する再帰関数①（階乗）",
+    "5-5. 自分自身を実行する再帰関数② 組合せ(nCr)の計算",
+    "5-6. 再帰関数③（ユークリッド互除法）",
+    "5-x. 樹状再帰（フィボナッチ・ツリー）"
+  ];
   document.getElementById('step-display').innerText = titles[currentStep-1];
-    // Update step badge and file name
-    const badge = document.getElementById('step-badge');
-    if(badge) badge.innerText = `Step ${currentStep}/4`;
-    const fileName = document.querySelector('.file-name');
-    if(fileName) fileName.innerText = `📄 func_recursion.py (Step ${currentStep})`;
-
   
+  // Update step badge and file name
+  const badge = document.getElementById('step-badge');
+  if(badge) badge.innerText = `Step ${currentStep}/5`;
+  const fileName = document.querySelector('.file-name');
+  if(fileName) fileName.innerText = `📄 func_recursion.py (Step ${currentStep})`;
+
   const codeBox = document.getElementById('code-content');
   codeBox.innerHTML = codes[currentStep-1].split('\n').map((line, i) => 
     `<span class="code-line" id="line-${i}">${highlightSyntax(escapeHtml(line)) || ' '}</span>`
@@ -186,6 +206,7 @@ function initUI() {
   
   clearFactory();
   clearTraceTable();
+  clearTerminal();
   setupTraceTableHeaders(stepTraceHeaders[currentStep - 1]);
   updateMemoryHUD("Wait...");
   
@@ -193,7 +214,12 @@ function initUI() {
   currentLoopState = null;
 }
 
-function nextStep() { if(currentStep < 4) { currentStep++; initUI(); } }
+function clearTerminal() {
+  const term = document.getElementById('term-output-list');
+  if (term) term.innerHTML = '';
+}
+
+function nextStep() { if(currentStep < 5) { currentStep++; initUI(); } }
 function prevStep() { if(currentStep > 1) { currentStep--; initUI(); } }
 
 function highlightLine(lineNum) {
@@ -372,144 +398,479 @@ function* step1Generator() {
 // ----------------------------------------------------
 function* step2Generator() {
   const factory = document.getElementById('factory-floor');
-  const stackBaseY = 500;
-  const stackOffset = 110;
+  const stackBaseY = 380;
+  const stackOffset = 60;
   let frames = [];
   
-  highlightLine(7);
+  highlightLine(6);
   updateMemoryHUD(`グローバル領域<br>---<br>関数呼び出し準備...`);
-  logTrace(`kaijou(3) を呼び出します`);
+  logTrace(`kaijou(5) を呼び出します`);
   yield;
   
-  // Call kaijou(3)
-  frames.push(createStackFrameFactorial(3, stackBaseY - 0*stackOffset, factory));
+  // Call kaijou(5)
+  frames.push(createStackFrameFactorial(5, stackBaseY - 0*stackOffset, factory));
   highlightLine(0);
-  updateMemoryHUD(`[スタック1]<br>n = 3`);
-  logTrace(`[Push] kaijou(3) スタック生成`, 'warn');
+  updateMemoryHUD(`[スタック1 (B1F)]<br>n = 5`);
+  logTrace(`[Push] kaijou(5) スタック生成`, 'warn');
   playSound('particle', 0);
   yield;
-  
-  highlightLine(1);
-  logTrace(`n == 0 ? -> False`);
-  yield;
-  
-  highlightLine(4);
-  logTrace(`kaijou(2) を呼び出して結果を待ちます...`);
-  yield;
-  
-  // Call kaijou(2)
+  highlightLine(1); logTrace(`n == 0 ? -> False`); yield;
+  highlightLine(4); logTrace(`kaijou(4) を呼び出して結果を待ちます...`); yield;
+
+  // Call kaijou(4)
   frames[0].classList.remove('active');
-  frames.push(createStackFrameFactorial(2, stackBaseY - 1*stackOffset, factory));
+  frames.push(createStackFrameFactorial(4, stackBaseY - 1*stackOffset, factory));
   highlightLine(0);
-  updateMemoryHUD(`[スタック2]<br>n = 2<br><br>[スタック1 (待機)]<br>n = 3`);
-  logTrace(`[Push] kaijou(2) スタック生成`, 'warn');
+  updateMemoryHUD(`[スタック2 (B2F)]<br>n = 4<br><br>[待機スタック]<br>n = 5`);
+  logTrace(`[Push] kaijou(4) スタック生成`, 'warn');
   playSound('particle', 1);
   yield;
-  
   highlightLine(1); logTrace(`n == 0 ? -> False`); yield;
-  highlightLine(4); logTrace(`kaijou(1) を呼び出します...`); yield;
-  
-  // Call kaijou(1)
+  highlightLine(4); logTrace(`kaijou(3) を呼び出します...`); yield;
+
+  // Call kaijou(3)
   frames[1].classList.remove('active');
-  frames.push(createStackFrameFactorial(1, stackBaseY - 2*stackOffset, factory));
+  frames.push(createStackFrameFactorial(3, stackBaseY - 2*stackOffset, factory));
   highlightLine(0);
-  updateMemoryHUD(`[スタック3]<br>n = 1<br><br>[スタック2 (待機)]<br>n = 2`);
-  addTraceRow(["Push [スタック3]", "n = 1", "kaijou(0) を呼び出し", "待機"]);
+  updateMemoryHUD(`[スタック3 (B3F)]<br>n = 3<br><br>[待機スタック]<br>n = 5, 4`);
+  logTrace(`[Push] kaijou(3) スタック生成`, 'warn');
   playSound('particle', 2);
   yield;
-  
-  highlightLine(1); yield;
-  highlightLine(4); yield;
-  
-  // Call kaijou(0)
+  highlightLine(1); logTrace(`n == 0 ? -> False`); yield;
+  highlightLine(4); logTrace(`kaijou(2) を呼び出します...`); yield;
+
+  // Call kaijou(2)
   frames[2].classList.remove('active');
-  frames.push(createStackFrameFactorial(0, stackBaseY - 3*stackOffset, factory));
+  frames.push(createStackFrameFactorial(2, stackBaseY - 3*stackOffset, factory));
   highlightLine(0);
-  updateMemoryHUD(`[スタック4]<br>n = 0<br><br>[スタック3 (待機)]<br>n = 1`);
-  addTraceRow(["Push [スタック4]", "n = 0", "n == 0 (ベースケース)", "<span class='val-ret'>return 1</span>"]);
+  updateMemoryHUD(`[スタック4 (B4F)]<br>n = 2<br><br>[待機スタック]<br>n = 5, 4, 3`);
+  logTrace(`[Push] kaijou(2) スタック生成`, 'warn');
   playSound('particle', 3);
   yield;
-  
-  highlightLine(1); 
+  highlightLine(1); logTrace(`n == 0 ? -> False`); yield;
+  highlightLine(4); logTrace(`kaijou(1) を呼び出します...`); yield;
+
+  // Call kaijou(1)
+  frames[3].classList.remove('active');
+  frames.push(createStackFrameFactorial(1, stackBaseY - 4*stackOffset, factory));
+  highlightLine(0);
+  updateMemoryHUD(`[スタック5 (B5F)]<br>n = 1<br><br>[待機スタック]<br>n = 5, 4, 3, 2`);
+  addTraceRow(["Push [B5F]", "n = 1", "kaijou(0) を呼び出し", "待機"]);
+  playSound('particle', 4);
+  yield;
+  highlightLine(1); logTrace(`n == 0 ? -> False`); yield;
+  highlightLine(4); logTrace(`kaijou(0) を呼び出します...`); yield;
+
+  // Call kaijou(0)
+  frames[4].classList.remove('active');
+  frames.push(createStackFrameFactorial(0, stackBaseY - 5*stackOffset, factory));
+  highlightLine(0);
+  updateMemoryHUD(`[スタック6 (B6F)]<br>n = 0 (最深部到達！)`);
+  addTraceRow(["Push [B6F]", "n = 0", "n == 0 (ベースケース到達！)", "<span class='val-ret'>return 1</span>"]);
+  playSound('particle', 5);
+  yield;
+
+  highlightLine(1);
   playSound('shake');
   yield;
-  
+
   highlightLine(2);
   let ret = 1;
-  frames[3].innerHTML += `<div class="treasure-chest">📦</div>`;
-  gsap.from(frames[3].querySelector('.treasure-chest'), {scale: 0, rotation: 360, duration: 0.5, ease: 'back.out'});
+  frames[5].innerHTML += `<div class="treasure-chest" style="position:absolute; top:20px; font-size:1.8rem;">📦</div>`;
+  gsap.from(frames[5].querySelector('.treasure-chest'), {scale: 0, rotation: 360, duration: 0.5, ease: 'back.out'});
+  showReturnValue(frames[5], ret);
+  yield;
+
+  // Pop kaijou(0)
+  playSound('pop', 5);
+  popStackFrame(frames.pop(), ret, frames[4]);
+  updateMemoryHUD(`[スタック5 (B5F)]<br>n = 1`);
+  addTraceRow(["Pop  [B6F]", "n = 0 終了", "戻り値 1 を kaijou(1) へ", "1"]);
+  highlightLine(4);
+  yield;
+
+  // In kaijou(1)
+  frames[4].querySelector('.frame-body').innerHTML = `1 * <span style="color:#ff00ff">${ret}</span>`;
+  highlightLine(4);
+  yield;
+  frames[4].querySelector('.frame-body').innerHTML = `1 * 1 = <span style="color:#00ff66">1</span>`;
+  ret = 1 * 1;
+  addTraceRow(["Pop  [B5F]", "n = 1 完了", "1 * 1 = 1", "<span class='val-ret'>return 1</span>"]);
+  showReturnValue(frames[4], ret);
+  yield;
+
+  // Pop kaijou(1)
+  playSound('pop', 4);
+  popStackFrame(frames.pop(), ret, frames[3]);
+  updateMemoryHUD(`[スタック4 (B4F)]<br>n = 2`);
+  yield;
+
+  // In kaijou(2)
+  frames[3].querySelector('.frame-body').innerHTML = `2 * <span style="color:#ff00ff">${ret}</span>`;
+  highlightLine(4);
+  yield;
+  frames[3].querySelector('.frame-body').innerHTML = `2 * 1 = <span style="color:#00ff66">2</span>`;
+  ret = 2 * 1;
+  addTraceRow(["Pop  [B4F]", "n = 2 完了", "2 * 1 = 2", "<span class='val-ret'>return 2</span>"]);
   showReturnValue(frames[3], ret);
   yield;
-  
-  // Pop kaijou(0)
+
+  // Pop kaijou(2)
   playSound('pop', 3);
   popStackFrame(frames.pop(), ret, frames[2]);
-  updateMemoryHUD(`[スタック3]<br>n = 1`);
-  addTraceRow(["Pop  [スタック4]", "n = 0 終了", "戻り値 1 を kaijou(1) へ", "1"]);
+  updateMemoryHUD(`[スタック3 (B3F)]<br>n = 3`);
+  yield;
+
+  // In kaijou(3)
+  frames[2].querySelector('.frame-body').innerHTML = `3 * <span style="color:#ff00ff">${ret}</span>`;
   highlightLine(4);
   yield;
-  
-  // In kaijou(1)
-  frames[2].querySelector('.frame-body').innerHTML = `1 * <span style="color:#ff00ff">${ret}</span>`;
-  highlightLine(4);
-  yield;
-  
-  frames[2].querySelector('.frame-body').innerHTML = `1 * 1 = <span style="color:#00ff66">1</span>`;
-  ret = 1 * 1;
-  addTraceRow(["Pop  [スタック3]", "n = 1 完了", "1 * 1 = 1", "<span class='val-ret'>return 1</span>"]);
+  frames[2].querySelector('.frame-body').innerHTML = `3 * 2 = <span style="color:#00ff66">6</span>`;
+  ret = 3 * 2;
+  addTraceRow(["Pop  [B3F]", "n = 3 完了", "3 * 2 = 6", "<span class='val-ret'>return 6</span>"]);
   showReturnValue(frames[2], ret);
   yield;
-  
-  // Pop kaijou(1)
+
+  // Pop kaijou(3)
   playSound('pop', 2);
   popStackFrame(frames.pop(), ret, frames[1]);
-  updateMemoryHUD(`[スタック2]<br>n = 2`);
+  updateMemoryHUD(`[スタック2 (B2F)]<br>n = 4`);
   yield;
-  
-  // In kaijou(2)
-  frames[1].querySelector('.frame-body').innerHTML = `2 * <span style="color:#ff00ff">${ret}</span>`;
+
+  // In kaijou(4)
+  frames[1].querySelector('.frame-body').innerHTML = `4 * <span style="color:#ff00ff">${ret}</span>`;
   highlightLine(4);
   yield;
-  
-  frames[1].querySelector('.frame-body').innerHTML = `2 * 1 = <span style="color:#00ff66">2</span>`;
-  ret = 2 * 1;
-  addTraceRow(["Pop  [スタック2]", "n = 2 完了", "2 * 1 = 2", "<span class='val-ret'>return 2</span>"]);
+  frames[1].querySelector('.frame-body').innerHTML = `4 * 6 = <span style="color:#00ff66">24</span>`;
+  ret = 4 * 6;
+  addTraceRow(["Pop  [B2F]", "n = 4 完了", "4 * 6 = 24", "<span class='val-ret'>return 24</span>"]);
   showReturnValue(frames[1], ret);
   yield;
-  
-  // Pop kaijou(2)
+
+  // Pop kaijou(4)
   playSound('pop', 1);
   popStackFrame(frames.pop(), ret, frames[0]);
-  updateMemoryHUD(`[スタック1]<br>n = 3`);
+  updateMemoryHUD(`[スタック1 (B1F)]<br>n = 5`);
   yield;
-  
-  // In kaijou(3)
-  frames[0].querySelector('.frame-body').innerHTML = `3 * <span style="color:#ff00ff">${ret}</span>`;
+
+  // In kaijou(5)
+  frames[0].querySelector('.frame-body').innerHTML = `5 * <span style="color:#ff00ff">${ret}</span>`;
   highlightLine(4);
   yield;
-  
-  frames[0].querySelector('.frame-body').innerHTML = `3 * 2 = <span style="color:#00ff66">6</span>`;
-  ret = 3 * 2;
-  addTraceRow(["Pop  [スタック1]", "n = 3 完了", "3 * 2 = 6", "<span class='val-ret'>return 6</span>"]);
+  frames[0].querySelector('.frame-body').innerHTML = `5 * 24 = <span style="color:#00ff66">120</span>`;
+  ret = 5 * 24;
+  addTraceRow(["Pop  [B1F]", "n = 5 完了", "5 * 24 = 120", "<span class='val-ret'>return 120</span>"]);
   showReturnValue(frames[0], ret);
   yield;
-  
-  // Pop kaijou(3) back to global
+
+  // Pop kaijou(5) back to global
   playSound('pop', 0);
   popStackFrame(frames.pop(), ret, null);
-  highlightLine(7);
-  updateMemoryHUD(`グローバル領域<br>ans = ${ret}`);
-  addTraceRow(["再帰完了", "ans に代入", "3! = 6", "<span class='val-true'>計算完了</span>"]);
+  highlightLine(6);
+  updateMemoryHUD(`グローバル領域<br><span style="color:#00ff66;font-size:1.2rem;font-weight:bold;">ans = 120</span>`);
+  addTraceRow(["再帰完了", "ans に代入", "5! = 120", "<span class='val-true'>計算完了</span>"]);
   yield;
-  
-  highlightLine(8);
-  addTraceRow(["最終出力", "print('3! =', ans)", "出力", "<span class='val-true' style='font-size:1.1rem;'>3! = 6</span>"]);
+
+  highlightLine(7);
+  addTraceRow(["最終出力", "print('5! =', ans)", "ターミナル出力", "<span class='val-true' style='font-size:1.1rem;'>5! = 120</span>"]);
+  const term = document.getElementById('term-output-list');
+  if (term) {
+    const l = document.createElement('div');
+    l.className = 'term-line';
+    l.innerText = '5! = 120';
+    term.appendChild(l);
+  }
+  fireConfetti();
   highlightLine(-1);
 }
 
 // ----------------------------------------------------
 // STEP 3: GCD Recursive Function
 // ----------------------------------------------------
+
+// ----------------------------------------------------
+// STEP 3: Combination (nCr) Recursive Function (5C5)
+// ----------------------------------------------------
+function* step3GeneratorKumiawase() {
+  const factory = document.getElementById('factory-floor');
+  factory.innerHTML = `
+    <div class="pascal-container">
+      <div class="pascal-formula-badge">組合せの再帰公式: <sub>n</sub>C<sub>r</sub> = <sub>n-1</sub>C<sub>r</sub> + <sub>n-1</sub>C<sub>r-1</sub></div>
+      <div class="pascal-row" id="p-row-0">
+        <div class="pascal-cell solved" id="p-cell-0-0"><span class="cell-label">0C0</span><span class="cell-val">1</span></div>
+      </div>
+      <div class="pascal-row" id="p-row-1">
+        <div class="pascal-cell solved" id="p-cell-1-0"><span class="cell-label">1C0</span><span class="cell-val">1</span></div>
+        <div class="pascal-cell solved" id="p-cell-1-1"><span class="cell-label">1C1</span><span class="cell-val">1</span></div>
+      </div>
+      <div class="pascal-row" id="p-row-2">
+        <div class="pascal-cell solved" id="p-cell-2-0"><span class="cell-label">2C0</span><span class="cell-val">1</span></div>
+        <div class="pascal-cell solved" id="p-cell-2-1"><span class="cell-label">2C1</span><span class="cell-val">2</span></div>
+        <div class="pascal-cell solved" id="p-cell-2-2"><span class="cell-label">2C2</span><span class="cell-val">1</span></div>
+      </div>
+      <div class="pascal-row" id="p-row-3">
+        <div class="pascal-cell solved" id="p-cell-3-0"><span class="cell-label">3C0</span><span class="cell-val">1</span></div>
+        <div class="pascal-cell solved" id="p-cell-3-1"><span class="cell-label">3C1</span><span class="cell-val">3</span></div>
+        <div class="pascal-cell solved" id="p-cell-3-2"><span class="cell-label">3C2</span><span class="cell-val">3</span></div>
+        <div class="pascal-cell solved" id="p-cell-3-3"><span class="cell-label">3C3</span><span class="cell-val">1</span></div>
+      </div>
+      <div class="pascal-row" id="p-row-4">
+        <div class="pascal-cell solved" id="p-cell-4-0"><span class="cell-label">4C0</span><span class="cell-val">1</span></div>
+        <div class="pascal-cell solved" id="p-cell-4-1"><span class="cell-label">4C1</span><span class="cell-val">4</span></div>
+        <div class="pascal-cell solved" id="p-cell-4-2"><span class="cell-label">4C2</span><span class="cell-val">6</span></div>
+        <div class="pascal-cell solved" id="p-cell-4-3"><span class="cell-label">4C3</span><span class="cell-val">4</span></div>
+        <div class="pascal-cell solved" id="p-cell-4-4"><span class="cell-label">4C4</span><span class="cell-val">1</span></div>
+      </div>
+      <div class="pascal-row" id="p-row-5">
+        <div class="pascal-cell" id="p-cell-5-0"><span class="cell-label">5C0</span><span class="cell-val">?</span></div>
+        <div class="pascal-cell" id="p-cell-5-1"><span class="cell-label">5C1</span><span class="cell-val">?</span></div>
+        <div class="pascal-cell" id="p-cell-5-2"><span class="cell-label">5C2</span><span class="cell-val">?</span></div>
+        <div class="pascal-cell" id="p-cell-5-3"><span class="cell-label">5C3</span><span class="cell-val">?</span></div>
+        <div class="pascal-cell" id="p-cell-5-4"><span class="cell-label">5C4</span><span class="cell-val">?</span></div>
+        <div class="pascal-cell" id="p-cell-5-5"><span class="cell-label">5C5</span><span class="cell-val">?</span></div>
+      </div>
+    </div>
+  `;
+  gsap.fromTo('.pascal-container', {scale: 0.95, opacity: 0}, {scale: 1, opacity: 1, duration: 0.25, ease: 'power2.out'});
+
+  const term = document.getElementById('term-output-list');
+  
+  // line 10: n = input(...)
+  highlightLine(10);
+  updateMemoryHUD(`グローバル領域<br>n = 5 (ユーザー入力)`);
+  logTrace(`n = input('整数を入力してください：') -> 5`);
+  if (term) {
+    const l0 = document.createElement('div');
+    l0.className = 'term-line prompt';
+    l0.innerText = '整数を入力してください：5';
+    term.appendChild(l0);
+  }
+  yield;
+
+  // line 12: for i in range(0, 6)
+  highlightLine(12);
+  logTrace(`for i in range(0, 6): ループ開始 (i = 0, 1, 2, 3, 4, 5)`);
+  yield;
+
+  // --- i = 0 (5C0) ---
+  highlightLine(12);
+  updateMemoryHUD(`n = 5<br>i = 0`);
+  yield;
+
+  highlightLine(13);
+  logTrace(`kumiawase(5, 0) を呼び出します`);
+  const c0 = document.getElementById('p-cell-5-0');
+  c0.classList.add('active');
+  yield;
+
+  highlightLine(1); // def
+  yield;
+  highlightLine(2); // if r == 0 or n == r:
+  logTrace(`r == 0 (0 == 0) が成立！ -> return 1`, 'true');
+  playSound('particle');
+  yield;
+
+  highlightLine(3); // return 1
+  c0.querySelector('.cell-val').innerText = '1';
+  c0.classList.remove('active');
+  c0.classList.add('solved');
+  playSound('pop', 0);
+  addTraceRow(["i = 0", "kumiawase(5, 0)", "r == 0 より即座に return 1", "<span class='val-ret'>5 C 0 = 1</span>"]);
+  if (term) {
+    const l = document.createElement('div');
+    l.className = 'term-line';
+    l.innerText = '5 C 0 = 1';
+    term.appendChild(l);
+  }
+  yield;
+
+  // --- i = 1 (5C1) ---
+  highlightLine(12);
+  updateMemoryHUD(`n = 5<br>i = 1`);
+  yield;
+
+  highlightLine(13);
+  logTrace(`kumiawase(5, 1) を呼び出します`);
+  const c1 = document.getElementById('p-cell-5-1');
+  c1.classList.add('active');
+  yield;
+
+  highlightLine(2); // if r == 0 or n == r: (False)
+  logTrace(`r == 0 or n == r ? -> False (r=1, n=5)`);
+  yield;
+
+  highlightLine(8); // return kumiawase(4, 1) + kumiawase(4, 0)
+  logTrace(`再帰公式: 4C1 + 4C0`, 'warn');
+  const p41 = document.getElementById('p-cell-4-1');
+  const p40 = document.getElementById('p-cell-4-0');
+  p41.classList.add('active');
+  p40.classList.add('active');
+  yield;
+
+  c1.querySelector('.cell-val').innerText = '5';
+  p41.classList.remove('active');
+  p40.classList.remove('active');
+  c1.classList.remove('active');
+  c1.classList.add('solved');
+  playSound('pop', 1);
+  addTraceRow(["i = 1", "kumiawase(5, 1)", "4C1(4) + 4C0(1) = 5", "<span class='val-true'>5 C 1 = 5</span>"]);
+  if (term) {
+    const l = document.createElement('div');
+    l.className = 'term-line';
+    l.innerText = '5 C 1 = 5';
+    term.appendChild(l);
+  }
+  yield;
+
+  // --- i = 2 (5C2) ---
+  highlightLine(12);
+  updateMemoryHUD(`n = 5<br>i = 2`);
+  yield;
+
+  highlightLine(13);
+  logTrace(`kumiawase(5, 2) を呼び出します`);
+  const c2 = document.getElementById('p-cell-5-2');
+  c2.classList.add('active');
+  yield;
+
+  highlightLine(2);
+  logTrace(`r == 0 or n == r ? -> False (r=2, n=5)`);
+  yield;
+
+  highlightLine(8); // return kumiawase(4, 2) + kumiawase(4, 1)
+  logTrace(`再帰公式: 4C2 + 4C1`, 'warn');
+  const p42 = document.getElementById('p-cell-4-2');
+  p42.classList.add('active');
+  p41.classList.add('active');
+  yield;
+
+  c2.querySelector('.cell-val').innerText = '10';
+  p42.classList.remove('active');
+  p41.classList.remove('active');
+  c2.classList.remove('active');
+  c2.classList.add('solved');
+  playSound('pop', 2);
+  addTraceRow(["i = 2", "kumiawase(5, 2)", "4C2(6) + 4C1(4) = 10", "<span class='val-true'>5 C 2 = 10</span>"]);
+  if (term) {
+    const l = document.createElement('div');
+    l.className = 'term-line';
+    l.innerText = '5 C 2 = 10';
+    term.appendChild(l);
+  }
+  yield;
+
+  // --- i = 3 (5C3) ---
+  highlightLine(12);
+  updateMemoryHUD(`n = 5<br>i = 3`);
+  yield;
+
+  highlightLine(13);
+  logTrace(`kumiawase(5, 3) を呼び出します`);
+  const c3 = document.getElementById('p-cell-5-3');
+  c3.classList.add('active');
+  yield;
+
+  highlightLine(2);
+  logTrace(`r == 0 or n == r ? -> False (r=3, n=5)`);
+  yield;
+
+  highlightLine(8); // return kumiawase(4, 3) + kumiawase(4, 2)
+  logTrace(`再帰公式: 4C3 + 4C2`, 'warn');
+  const p43 = document.getElementById('p-cell-4-3');
+  p43.classList.add('active');
+  p42.classList.add('active');
+  yield;
+
+  c3.querySelector('.cell-val').innerText = '10';
+  p43.classList.remove('active');
+  p42.classList.remove('active');
+  c3.classList.remove('active');
+  c3.classList.add('solved');
+  playSound('pop', 3);
+  addTraceRow(["i = 3", "kumiawase(5, 3)", "4C3(4) + 4C2(6) = 10", "<span class='val-true'>5 C 3 = 10</span>"]);
+  if (term) {
+    const l = document.createElement('div');
+    l.className = 'term-line';
+    l.innerText = '5 C 3 = 10';
+    term.appendChild(l);
+  }
+  yield;
+
+  // --- i = 4 (5C4) ---
+  highlightLine(12);
+  updateMemoryHUD(`n = 5<br>i = 4`);
+  yield;
+
+  highlightLine(13);
+  logTrace(`kumiawase(5, 4) を呼び出します`);
+  const c4 = document.getElementById('p-cell-5-4');
+  c4.classList.add('active');
+  yield;
+
+  highlightLine(2);
+  logTrace(`r == 0 or n == r ? -> False (r=4, n=5)`);
+  yield;
+
+  highlightLine(8); // return kumiawase(4, 4) + kumiawase(4, 3)
+  logTrace(`再帰公式: 4C4 + 4C3`, 'warn');
+  const p44 = document.getElementById('p-cell-4-4');
+  p44.classList.add('active');
+  p43.classList.add('active');
+  yield;
+
+  c4.querySelector('.cell-val').innerText = '5';
+  p44.classList.remove('active');
+  p43.classList.remove('active');
+  c4.classList.remove('active');
+  c4.classList.add('solved');
+  playSound('pop', 4);
+  addTraceRow(["i = 4", "kumiawase(5, 4)", "4C4(1) + 4C3(4) = 5", "<span class='val-true'>5 C 4 = 5</span>"]);
+  if (term) {
+    const l = document.createElement('div');
+    l.className = 'term-line';
+    l.innerText = '5 C 4 = 5';
+    term.appendChild(l);
+  }
+  yield;
+
+  // --- i = 5 (5C5) ---
+  highlightLine(12);
+  updateMemoryHUD(`n = 5<br>i = 5`);
+  yield;
+
+  highlightLine(13);
+  logTrace(`kumiawase(5, 5) を呼び出します`);
+  const c5 = document.getElementById('p-cell-5-5');
+  c5.classList.add('active');
+  yield;
+
+  highlightLine(2); // if r == 0 or n == r:
+  logTrace(`n == r (5 == 5) が成立！ -> return 1`, 'true');
+  playSound('particle');
+  yield;
+
+  highlightLine(3); // return 1
+  c5.querySelector('.cell-val').innerText = '1';
+  c5.classList.remove('active');
+  c5.classList.add('solved');
+  playSound('pop', 5);
+  addTraceRow(["i = 5", "kumiawase(5, 5)", "n == r より即座に return 1", "<span class='val-ret'>5 C 5 = 1</span>"]);
+  if (term) {
+    const l = document.createElement('div');
+    l.className = 'term-line';
+    l.innerText = '5 C 5 = 1';
+    term.appendChild(l);
+  }
+  yield;
+
+  // 完了
+  highlightLine(12);
+  logTrace(`ループ終了 (range 完了)`);
+  addTraceRow(["完了", "n = 5 の組合せ全計算完了", "パスカルの三角形 5行目完成", "<span class='val-true' style='font-size:1.1rem;'>COMPLETE</span>"]);
+  fireConfetti();
+  highlightLine(-1);
+}
+
 function* step3Generator() {
   const factory = document.getElementById('factory-floor');
   const stackBaseY = 500;
@@ -634,14 +995,14 @@ function createStackFrameFactorial(n, yPos, parent) {
   const el = document.createElement('div');
   el.className = 'stack-frame active';
   el.style.top = yPos + 'px';
-  const depth = 3 - n; // B1F, B2F, etc.
+  const depth = 5 - n; // B1F (n=5) から B6F (n=0)
   el.innerHTML = `
     <div class="rpg-floor">B${depth+1}F</div>
     <div class="frame-title">kaijou(${n})</div>
     <div class="frame-body">${n > 0 ? `${n} * <span style="color:#ffb86c">kaijou(${n-1})</span>` : `return 1`}</div>
   `;
   parent.appendChild(el);
-  gsap.from(el, {y: -50, scale: 0.8, opacity: 0, duration: 0.4, ease: 'back.out'});
+  gsap.from(el, {y: -30, scale: 0.8, opacity: 0, duration: 0.35, ease: 'back.out'});
   return el;
 }
 
@@ -712,7 +1073,16 @@ function popStackFrame(frame, val, targetFrame) {
 }
 
 
-// Engine Trigger
+// Engine Trigger Helper
+function getStepGenerator(stepNum) {
+  if (stepNum === 1) return step1Generator();
+  if (stepNum === 2) return step2Generator();
+  if (stepNum === 3) return step3GeneratorKumiawase();
+  if (stepNum === 4) return step3Generator();
+  if (stepNum === 5) return step4Generator();
+  return null;
+}
+
 function stepBackOld(stepNum) {
   if (!currentLoopState || currentLoopState.count <= 0) return;
   const targetCount = currentLoopState.count - 1;
@@ -720,11 +1090,8 @@ function stepBackOld(stepNum) {
   
   // Re-init generator
   initUI();
-  let gen;
-  if(stepNum === 1) gen = step1Generator();
-  if(stepNum === 2) gen = step2Generator();
-  if(stepNum === 3) gen = step3Generator();
-  if(stepNum === 4) gen = step4Generator();
+  const gen = getStepGenerator(stepNum);
+  if (!gen) return;
   
   currentLoopState = { step: stepNum, gen: gen, count: 0 };
   
@@ -745,11 +1112,8 @@ function stepBackOld(stepNum) {
 function triggerStep(stepNum, isAuto) {
   if (!currentLoopState || currentLoopState.step !== stepNum) {
     initUI();
-    let gen;
-    if(stepNum === 1) gen = step1Generator();
-    if(stepNum === 2) gen = step2Generator();
-    if(stepNum === 3) gen = step3Generator();
-    if(stepNum === 4) gen = step4Generator();
+    const gen = getStepGenerator(stepNum);
+    if (!gen) return;
     currentLoopState = { step: stepNum, gen: gen, count: 0 };
   }
   
@@ -976,59 +1340,6 @@ cancelAuto = function() {
 function resetCurrentStep() {
   cancelAuto();
   initUI();
-}
-
-
-// =================================================================
-// Feature: Hacker Cat Tooltip
-// =================================================================
-const hackerDict = {
-  'print': 'コンソール画面に、文字や変数の結果を出力（表示）する関数にゃ。',
-  'int': '文字などのデータを「整数（数値）」に変身させる関数にゃ。',
-  'float': '文字などのデータを「小数（浮動小数点数）」に変身させる関数にゃ。',
-  'str': '数値などのデータを「文字列（テキスト）」に変身させる関数にゃ。',
-  'input': 'キーボードから入力を受け付ける関数にゃ。',
-  'if': 'もし～なら、という条件分岐を作る命令にゃ。',
-  'elif': 'ifの条件に当てはまらず、「じゃあ、もし～なら」と追加の条件を作る命令にゃ。',
-  'else': 'どの条件にも当てはまらなかった場合（それ以外）の処理を書くところにゃ。',
-  'and': '「～かつ～」の両方が正しい（True）ときに全体の条件をTrueにするにゃ。',
-  'or': '「～または～」のどちらかが正しい（True）ときに全体の条件をTrueにするにゃ。',
-  'not': '「～ではない」と、条件のTrueとFalseを逆転させるにゃ。',
-  'True': '条件が「正しい（真）」であることを表す値にゃ！',
-  'False': '条件が「間違っている（偽）」であることを表す値にゃ！',
-  'def': '新しい関数を定義（作る）ための合図にゃ。',
-  'return': '関数の処理結果（戻り値）を呼び出し元に返す命令にゃ。'
-};
-
-const tooltipEl = document.getElementById('hacker-tooltip');
-const tooltipText = document.getElementById('hacker-speech-text');
-
-if (tooltipEl && tooltipText) {
-  document.addEventListener('mouseover', (e) => {
-    const target = e.target.closest('.keyword-help');
-    if (target) {
-      const word = target.getAttribute('data-word');
-      if (hackerDict[word]) {
-        tooltipText.innerText = hackerDict[word];
-        const rect = target.getBoundingClientRect();
-        tooltipEl.style.left = `${rect.left}px`;
-        tooltipEl.style.top = `${rect.top - tooltipEl.offsetHeight - 10}px`;
-        tooltipEl.classList.remove('hidden');
-        tooltipEl.classList.add('visible');
-      }
-    }
-  });
-
-  document.addEventListener('mouseout', (e) => {
-    if (e.target.closest('.keyword-help')) {
-      tooltipEl.classList.remove('visible');
-      setTimeout(() => {
-        if (!tooltipEl.classList.contains('visible')) {
-          tooltipEl.classList.add('hidden');
-        }
-      }, 200);
-    }
-  });
 }
 // === Feature: Hacker Cat Tooltip & Syntax Highlighting ===
 const hackerDict = {

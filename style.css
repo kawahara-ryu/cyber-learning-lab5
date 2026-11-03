@@ -116,7 +116,7 @@ body {
   height: calc(100vh - 56px);
   max-height: calc(100vh - 56px);
   display: grid;
-  grid-template-columns: 580px 1fr 490px;
+  grid-template-columns: 520px 1fr 440px;
   grid-template-rows: 100%;
   gap: 12px;
   padding: 12px;
@@ -197,11 +197,12 @@ body {
 }
 
 .code-line {
-  display: flex;
-  align-items: flex-start;
+  display: block;
   padding: 4px 10px;
   transition: background 0.15s;
   border-left: 3px solid transparent;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 .code-line:hover {
   background: rgba(255, 255, 255, 0.05);
@@ -824,15 +825,86 @@ body.zoom-mode .var-val {
 /* Call Stack & Return Value Styling */
 .stack-frame {
   position: absolute;
-  width: 280px;
+  width: 240px;
+  left: calc(50% - 120px);
   background: rgba(10, 15, 30, 0.95);
   border: 2px solid var(--neon-cyan);
   border-radius: 8px;
-  padding: 10px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.5), inset 0 0 10px rgba(0,243,255,0.2);
+  padding: 5px 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5), inset 0 0 10px rgba(0,243,255,0.2);
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+
+/* === 5-5. パスカルの三角形（組合せビジュアライザー） === */
+.pascal-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 4px;
+  width: 100%;
+}
+.pascal-formula-badge {
+  background: rgba(0, 240, 255, 0.15);
+  border: 1px solid var(--neon-cyan);
+  padding: 3px 8px;
+  border-radius: 20px;
+  font-family: Consolas, monospace;
+  font-size: 0.78rem;
+  color: var(--neon-cyan);
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+  margin-bottom: 4px;
+  white-space: nowrap;
+}
+.pascal-row {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+}
+.pascal-cell {
+  width: 38px;
+  height: 36px;
+  background: rgba(20, 25, 45, 0.9);
+  border: 2px solid #3d4a68;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  position: relative;
+}
+.pascal-cell .cell-label {
+  font-size: 0.55rem;
+  color: #7e8ba8;
+  font-family: Consolas, monospace;
+  line-height: 1;
+}
+.pascal-cell .cell-val {
+  font-size: 0.95rem;
+  font-weight: bold;
+  color: #fff;
+  line-height: 1.1;
+}
+.pascal-cell.active {
+  border-color: var(--neon-pink);
+  background: rgba(255, 0, 128, 0.25);
+  box-shadow: 0 0 18px rgba(255, 0, 128, 0.7);
+  transform: scale(1.12);
+  z-index: 5;
+}
+.pascal-cell.active .cell-val {
+  color: var(--neon-pink);
+}
+.pascal-cell.solved {
+  border-color: #00ff66;
+  background: rgba(0, 255, 102, 0.15);
+  box-shadow: 0 0 10px rgba(0, 255, 102, 0.4);
+}
+.pascal-cell.solved .cell-val {
+  color: #00ff66;
 }
 .stack-frame.active {
   border-color: var(--neon-pink);
@@ -1124,4 +1196,9 @@ body.zoom-mode .var-val {
 @keyframes rowFlash {
   0% { background-color: rgba(255, 105, 180, 0.5); }
   100% { background-color: transparent; }
+}
+
+/* === app-doctor: 非表示優先度保証パッチ === */
+.hidden {
+  display: none !important;
 }
